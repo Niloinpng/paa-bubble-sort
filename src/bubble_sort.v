@@ -84,8 +84,40 @@ Proof.
     apply Nat.leb_gt in e0.
     lia.
 Qed.  
+Lemma bubble_min: forall l a y, y <= a -> Sorted le (y::l) -> HdRel le y (bubble (a::l)).
+Proof.
+  intros l a y Hya Hyl.
+  destruct l.
+  - rewrite bubble_equation. constructor. lia.
+  - rewrite bubble_equation. destruct (a <=? n) eqn:E.
+    + constructor. lia.
+    + inversion Hyl; subst. inversion H2; subst. constructor. lia.
+Qed.
+
+Lemma bubble_insert_sorted: forall l, Sorted le l -> forall x, Sorted le (bubble (x::l)).
+Proof.
+  induction l.
+  - intros H x. simpl. constructor.
+    + constructor.
+    + constructor.
+  - intros H x. rewrite bubble_equation. destruct (x <=? a) eqn:E.
+    + apply Nat.leb_le in E.
+      rewrite bubble_sorted by assumption.
+      constructor.
+      * assumption.
+      * constructor. lia.
+    + apply Nat.leb_gt in E.
+      constructor.
+      * apply IHl. inversion H; subst; assumption.
+      * apply bubble_min; auto. lia.
+Qed.
+
 Lemma bs_sorted: forall l, Sorted le (bs l).
-Proof. Admitted.
+Proof.
+  induction l.
+  - simpl. constructor.
+  - simpl. apply bubble_insert_sorted. assumption.
+Qed.
 
 (** A seguir, mostraremos que o algoritmo bubblesort (função [bs]) gera como saída uma permutação da lista de entrada. O lema a seguir nos diz que a função [bubble] também gera uma permutação da entrada: *)
 
