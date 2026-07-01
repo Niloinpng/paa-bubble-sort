@@ -25,6 +25,24 @@
 \begin{document}
 \maketitle
 
+\section*{Desenvolvimento do lema \texttt{bubble\_perm}}
+
+A prova de que \texttt{bubble} preserva permutação foi feita por indução funcional sobre
+\texttt{bubble l}, seguindo a mesma estratégia usada em \texttt{bubble\_sorted}.
+Nos casos base (\texttt{nil} e \texttt{x::nil}), a lista de saída coincide com a entrada.
+Quando \texttt{x <=? y}, a recursão ocorre em \texttt{y::l} e aplicamos \texttt{perm\_skip}
+com a hipótese indutiva. Quando \texttt{x > y}, o algoritmo troca \texttt{x} e \texttt{y}
+localmente (\texttt{perm\_swap}) e depois usa \texttt{perm\_skip} com a hipótese indutiva
+sobre \texttt{x::l}.
+
+\section*{Desenvolvimento dos lemas \texttt{bs\_permuta} e \texttt{bs\_correto}}
+
+Para \texttt{bs\_permuta}, usamos indução estrutural sobre a lista. No caso base a lista é
+vazia; no caso recursivo reescrevemos \texttt{bs (h::l)} como \texttt{bubble (h::bs l)} e
+combinamos a hipótese indutiva com \texttt{bubble\_perm} via transitividade de permutação.
+O teorema \texttt{bs\_correto} segue imediatamente ao unir \texttt{bs\_sorted} e
+\texttt{bs\_permuta}.
+
 \input{bubble_sort.v}
 
 \end{document}

@@ -24,7 +24,7 @@ Proof.
   - auto.
 Defined.
 
-(** Observe que esta função não é estruturalmente recursiva porque, por exemplo, a lista [(x::l)] não é uma sublista da lista original [(x::y::l)]. Neste caso, utilizamos [Function] para construir esta função e precisamos fornecer a medida que decresce em cada chamada recursiva, além de provar que esta medida efetivamente decresce a cada chamada recursiva. Por exemplo, [bubble (2::1::nil)] retorna a lista [(1::2::nil)].
+(** Observe que esta função não é estruturalmente recursiva porque, xpor exemplo, a lista [(x::l)] não é uma sublista da lista original [(x::y::l)]. Neste caso, utilizamos [Function] para construir esta função e precisamos fornecer a medida que decresce em cada chamada recursiva, além de provar que esta medida efetivamente decresce a cada chamada recursiva. Por exemplo, [bubble (2::1::nil)] retorna a lista [(1::2::nil)].
 
  *)
 
@@ -123,17 +123,40 @@ Qed.
 
 Lemma bubble_perm: forall l, Permutation l (bubble l).
 Proof.
-  intro l. functional induction (bubble l). Admitted.
+  intros l.
+  functional induction (bubble l).
+  - (* Caso 1: A lista é vazia (nil) *)
+    reflexivity.
+  - (* Caso 2: A lista tem apenas um elemento (x :: nil) *)
+    reflexivity.
+  - (* Caso 3: A lista tem dois ou mais elementos (x :: y :: l) e x <= y *)
+    apply perm_skip. assumption.
+  - (* Caso 4: A lista tem dois ou mais elementos (x :: y :: l) mas x > y *)
+    apply perm_trans with (y :: x :: l0).
+    + apply Permutation_sym. apply perm_swap.
+    + apply perm_skip. assumption.
+Qed.
 
 (** O lema [bs_correto] a seguir, nos mostra que o algoritmo [bs] gera uma permutação da lista de entrada: *)
 
 Lemma bs_permuta: forall l, Permutation l (bs l).
-Proof. Admitted.
+Proof.
+  induction l.
+  - (* Caso 1: A lista é vazia (nil) *)
+    simpl. reflexivity.
+  - (* Caso 2: A lista tem cabeça a e cauda l *)
+    simpl. apply perm_trans with (a :: bs l).
+    + apply perm_skip. assumption.
+    + apply bubble_perm.
+Qed.
 
 (** Por fim, a correção do algoritmo [bs] é obtida pelo teorema a seguir que estabelece que o algoritmo [bs] retorna uma permutação da lista de entrada que está ordenada: *)
     
 Theorem bs_correto: forall l, Sorted le (bs l) /\ Permutation l (bs l).
 Proof.
-Admitted.  
+  intros l. split.
+  - apply bs_sorted.
+  - apply bs_permuta.
+Qed.  
 
 (** Repositório: %\url{https://github.com/flaviodemoura/bubble_sort}% *)
