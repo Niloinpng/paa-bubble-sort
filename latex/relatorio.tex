@@ -18,30 +18,100 @@
 \newcommand{\tto}{\twoheadrightarrow}
 \newcommand{\ott}{\twoheadleftarrow}
 
-\title{Formalização da correção do algoritmo Bubblesort}
-\author{Nome e matrícula}
+\title{Formalização da correção do algoritmo Bubble Sort}
+\author{%
+  Danilo Silveira --- 222014142 \\
+  Sofia Mascarenhas Ikawa --- 211060700
+}
 \date{\today}
 
 \begin{document}
 \maketitle
 
-\section*{Desenvolvimento do lema \texttt{bubble\_perm}}
+\section*{Participantes}
 
-A prova de que \texttt{bubble} preserva permutação foi feita por indução funcional sobre
-\texttt{bubble l}, seguindo a mesma estratégia usada em \texttt{bubble\_sorted}.
-Nos casos base (\texttt{nil} e \texttt{x::nil}), a lista de saída coincide com a entrada.
-Quando \texttt{x <=? y}, a recursão ocorre em \texttt{y::l} e aplicamos \texttt{perm\_skip}
-com a hipótese indutiva. Quando \texttt{x > y}, o algoritmo troca \texttt{x} e \texttt{y}
-localmente (\texttt{perm\_swap}) e depois usa \texttt{perm\_skip} com a hipótese indutiva
-sobre \texttt{x::l}.
+\begin{itemize}
+  \item Danilo Silveira (222014142): lemas \texttt{bubble\_perm},
+        \texttt{bs\_permuta} e teorema \texttt{bs\_correto}.
+  \item Sofia Mascarenhas Ikawa (211060700): lemas \texttt{bubble\_sorted},
+        \texttt{bubble\_min}, \texttt{bubble\_insert\_sorted} e \texttt{bs\_sorted}.
+\end{itemize}
 
-\section*{Desenvolvimento dos lemas \texttt{bs\_permuta} e \texttt{bs\_correto}}
+\section*{Lema \texttt{bubble\_perm}}
 
-Para \texttt{bs\_permuta}, usamos indução estrutural sobre a lista. No caso base a lista é
-vazia; no caso recursivo reescrevemos \texttt{bs (h::l)} como \texttt{bubble (h::bs l)} e
-combinamos a hipótese indutiva com \texttt{bubble\_perm} via transitividade de permutação.
-O teorema \texttt{bs\_correto} segue imediatamente ao unir \texttt{bs\_sorted} e
-\texttt{bs\_permuta}.
+Este lema estabelece que, para toda lista \texttt{l}, aplicar \texttt{bubble l}
+produz uma permutação de \texttt{l}. Ou seja, uma passada de borbulhamento
+reordena os elementos, mas não cria nem remove nenhum deles.
+
+A prova utiliza indução funcional sobre \texttt{bubble l}, seguindo a mesma
+estratégia empregada em \texttt{bubble\_sorted}.
+Como \texttt{bubble} foi definida com \texttt{Function}, a indução gera quatro
+casos, correspondentes aos ramos da função:
+
+\begin{itemize}
+  \item \textbf{Casos base} (\texttt{nil} e \texttt{x::nil}): a saída coincide
+        com a entrada; a prova termina com \texttt{reflexivity}.
+  \item \textbf{Caso \texttt{x <= y}}: \texttt{bubble} retorna
+        \texttt{x :: bubble (y :: l0)}. Aplicamos \texttt{perm\_skip} e a
+        hipótese indutiva \texttt{IHl0}, que garante
+        \texttt{Permutation (y :: l0) (bubble (y :: l0))}.
+  \item \textbf{Caso \texttt{x > y}}: \texttt{bubble} retorna
+        \texttt{y :: bubble (x :: l0)}. Como o primeiro elemento muda, usamos
+        \texttt{perm\_trans} com a lista intermediária \texttt{y :: x :: l0}:
+        \texttt{perm\_swap} (com \texttt{Permutation\_sym}) formaliza a troca
+        local de \texttt{x} e \texttt{y}; em seguida, \texttt{perm\_skip} com
+        \texttt{IHl0} conclui o caso.
+\end{itemize}
+
+\section*{Lema \texttt{bs\_permuta}}
+
+Este lema mostra que o algoritmo completo \texttt{bs} preserva permutação:
+\texttt{forall l, Permutation l (bs l)}.
+
+A prova é por indução estrutural sobre a lista.
+No \textbf{caso base}, \texttt{bs nil = nil} e a conclusão é imediata
+(\texttt{simpl} e \texttt{reflexivity}).
+
+No \textbf{caso indutivo} \texttt{a :: l}, pela definição de \texttt{bs} temos
+\texttt{bs (a :: l) = bubble (a :: bs l)}.
+O objetivo é provar \texttt{Permutation (a :: l) (bubble (a :: bs l))}.
+Utilizamos \texttt{perm\_trans} com a lista intermediária \texttt{a :: bs l}:
+
+\begin{enumerate}
+  \item \texttt{Permutation (a :: l) (a :: bs l)} --- obtido pela hipótese
+        indutiva (\texttt{Permutation l (bs l)}) estendida com \texttt{perm\_skip}.
+  \item \texttt{Permutation (a :: bs l) (bubble (a :: bs l))} --- obtido
+        diretamente pelo lema \texttt{bubble\_perm}.
+\end{enumerate}
+
+A transitividade encadeia os dois passos e fecha o caso indutivo.
+
+\section*{Teorema \texttt{bs\_correto}}
+
+O teorema \texttt{bs\_correto} é o resultado principal do enunciado:
+\texttt{forall l, Sorted le (bs l) /\ Permutation l (bs l)}.
+Ele afirma que \texttt{bs} retorna uma lista ordenada que é permutação da
+entrada, ou seja, que o algoritmo está correto.
+
+A prova separa as duas propriedades com o tático \texttt{split}:
+\begin{itemize}
+  \item \texttt{Sorted le (bs l)} --- concluído aplicando o lema \texttt{bs\_sorted}
+        (Sofia).
+  \item \texttt{Permutation l (bs l)} --- concluído aplicando o lema
+        \texttt{bs\_permuta} (Danilo).
+\end{itemize}
+
+Nenhuma indução adicional é necessária, pois ambos os lemas já haviam sido
+estabelecidos anteriormente.
+
+\section*{Conclusão}
+
+Formalizamos a correção do bubble sort no Coq, demonstrando que a função
+\texttt{bs} produz uma lista ordenada e permutação da entrada.
+As provas de ordenação foram desenvolvidas por Sofia, enquanto as provas de
+permutação e o teorema final foram desenvolvidos por Danilo.
+Todos os resultados exigidos pelo enunciado terminam em \texttt{Qed}, e o
+projeto compila com \texttt{make coq}.
 
 \input{bubble_sort.v}
 
