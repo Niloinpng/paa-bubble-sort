@@ -37,6 +37,68 @@
         \texttt{bubble\_min}, \texttt{bubble\_insert\_sorted} e \texttt{bs\_sorted}.
 \end{itemize}
 
+\section*{Lema \texttt{bubble\_sorted}}
+
+Este lema estabelece que, se uma lista \texttt{l} já está ordenada
+(\texttt{Sorted le l}), então aplicar \texttt{bubble l} retorna a própria
+lista \texttt{l}. Ou seja, o borbulhamento não altera uma lista que já se
+encontra perfeitamente ordenada.
+
+A prova utiliza indução funcional sobre \texttt{bubble l}. Os casos base
+(\texttt{nil} e \texttt{x::nil}) são triviais e concluídos com reflexividade.
+No caso em que \texttt{x <= y}, a prova segue reescrevendo com a hipótese
+indutiva. No caso em que \texttt{x > y}, obtemos uma contradição com a hipótese
+de que a lista original estava ordenada, utilizando a inversão de \texttt{Sorted}
+e a tática \texttt{lia}.
+
+\section*{Lema \texttt{bubble\_min}}
+
+Este lema afirma que, dadas uma lista \texttt{l} e variáveis \texttt{a} e
+\texttt{y}, se \texttt{y <= a} e a lista \texttt{y::l} está ordenada, então
+\texttt{y} manterá a relação de ser menor ou igual à cabeça da lista resultante
+de \texttt{bubble (a::l)} (\texttt{HdRel le y (bubble (a::l))}).
+
+A prova é conduzida por análise de casos (destruição) sobre a estrutura da
+lista \texttt{l}. Ao expandir a avaliação de \texttt{bubble} através de sua
+equação, verificamos o comportamento do borbulhamento e utilizamos a inversão
+da ordenação juntamente com a tática \texttt{lia} para garantir que a
+propriedade relacional se mantém em todos os ramos da execução.
+
+\section*{Lema \texttt{bubble\_insert\_sorted}}
+
+Este lema é fundamental para a ordenação geral. Ele garante que se uma lista
+\texttt{l} já está ordenada, inserir um elemento \texttt{x} e aplicar uma
+passada de \texttt{bubble (x::l)} resulta numa nova lista completamente
+ordenada.
+
+A prova procede por indução estrutural sobre a lista \texttt{l}:
+\begin{itemize}
+  \item \textbf{Caso base} (\texttt{nil}): \texttt{bubble (x::nil)} resulta
+        em uma lista de um elemento, que é trivialmente ordenada.
+  \item \textbf{Caso indutivo} (\texttt{a::l}): A execução de
+        \texttt{bubble (x::a::l)} ramifica dependendo do teste \texttt{x <= a}.
+        Se verdadeiro, nenhuma inversão é necessária e aplicamos
+        \texttt{bubble\_sorted} para concluir a prova. Se falso (\texttt{x > a}),
+        a troca de posições ocorre. Aplicamos então a hipótese indutiva na
+        cauda da lista e o lema auxiliar \texttt{bubble\_min} para provar que
+        a nova cabeça mantém a relação de ordem com o resto borbulhado da lista.
+\end{itemize}
+
+\section*{Lema \texttt{bs\_sorted}}
+
+Este lema prova a primeira metade do teorema de corretude: a função principal
+\texttt{bs} sempre retorna uma lista ordenada, ou seja,
+\texttt{forall l, Sorted le (bs l)}.
+
+A prova é direta por indução estrutural sobre a lista de entrada \texttt{l}. 
+No \textbf{caso base}, \texttt{bs nil = nil}, que é uma lista ordenada por
+definição. 
+No \textbf{caso indutivo} (\texttt{a::l}), temos pela definição que
+\texttt{bs (a::l) = bubble (a::bs l)}. A hipótese indutiva nos fornece
+\texttt{Sorted le (bs l)}. Tendo a garantia de que a cauda já se encontra
+ordenada, a conclusão é obtida imediatamente por uma aplicação do lema
+\texttt{bubble\_insert\_sorted}.
+
 \section*{Lema \texttt{bubble\_perm}}
 
 Este lema estabelece que, para toda lista \texttt{l}, aplicar \texttt{bubble l}
